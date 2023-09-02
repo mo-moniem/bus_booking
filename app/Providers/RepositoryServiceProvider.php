@@ -14,12 +14,10 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        foreach ($this->getModels() as $model) {
-            $this->app->bind(
-                "App\Repositories\Contracts\\{$model}Contract",
-                "App\Repositories\SQL\\{$model}Repository"
-            );
-        }
+        $this->app->bind(
+            "App\Repositories\Contracts\TripContract",
+            "App\Repositories\SQL\TripRepository"
+        );
     }
 
     /**
@@ -32,11 +30,5 @@ class RepositoryServiceProvider extends ServiceProvider
         //
     }
 
-    protected function getModels()
-    {
-        $files = Storage::disk('app')->files('Models');
-        return collect($files)->map(function ($file) {
-            return basename($file, '.php');
-        });
-    }
+
 }
