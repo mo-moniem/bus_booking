@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AvailableSeatRequest;
 use App\Http\Requests\TripSeatRequest;
 use App\Http\Resources\TicketResource;
 use App\Http\Resources\TripSeatResource;
@@ -26,11 +27,11 @@ class SeatBookingController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param AvailableSeatRequest $request
      * @return JsonResponse
      */
-    public function getAvailableTripSeat(Request $request):JsonResponse{
-        $tripSeats = $this->repo->getAvailableTripSeat($request);
+    public function getAvailableTripSeat(AvailableSeatRequest $request):JsonResponse{
+        $tripSeats = $this->repo->getAvailableTripSeat($request->validated());
         return response()->json(['status'=>true,'data'=>TripSeatResource::collection($tripSeats->get())]);
     }
 

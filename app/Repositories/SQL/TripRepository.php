@@ -23,16 +23,18 @@ class TripRepository implements TripContract
     }
 
     /**
-     * @param Request $request
+     * @param array $request
      * @return \Illuminate\Http\JsonResponse|mixed
      */
-    public function getAvailableTripSeat(Request $request){
+    public function getAvailableTripSeat(array $request){
         $tripSeats = $this->model->with([
             "bus",
             "seats" => fn($q)=> $q->ofAvailableSeats($request),
         ])->ofAvailableTrip($request);
+
         if(!$tripSeats->exists()){
-            return response()->json(['status'=>false,'message'=>'No Available Trip Seats'],404);
+            $response =  response()->json(['status'=>false,'message'=>'No Available Trip Seats'],404);
+            throw new HttpResponseException($response);
         }
         return $tripSeats;
     }
@@ -42,9 +44,14 @@ class TripRepository implements TripContract
      * @param Trip $trip
      * @return \Illuminate\Database\Eloquent\Model|mixed
      */
-    public function tripSeatBooking(Array $attributes, Trip $trip){
+    public function tripSeatBooking(array $attributes, Trip $trip){
         $check_seat_booked_before = $trip->tickets()->where('seat_id',$attributes['seat_id']);
+        $seat = $trip->seats()->where('seats.id',$attributes['seat_id'])->first();
+        $seat_available_stations = $seat->available_stations;
         if(!$check_seat_booked_before->exists()){
+            if($index = array_search($attributes['end_station'],$seat_available_stations)){
+                $seat->update(['available_stations'=>array_slice($seat_available_stations,$index)]);
+            }
             $ticket = $trip->tickets()->create([
                 'user_id'=> auth()?->id()??1,
                 'ticket_num' => $trip->id.'-'.$attributes['seat_id'].'-'.Str::random(8),
@@ -65,6 +72,9 @@ class TripRepository implements TripContract
             if($check_seat_booked_before->exists()){
                 $response = response()->json(['status'=>false,'message'=>'Seat Already Booked'],404);
                 throw new HttpResponseException($response);
+            }
+            if($index = array_search($attributes['end_station'],$seat_available_stations)){
+                $seat->update(['available_stations'=>array_slice($seat_available_stations,$index)]);
             }
             $ticket = $trip->tickets()->create([
                 'user_id'=> auth()?->id()??1,

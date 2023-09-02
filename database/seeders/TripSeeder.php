@@ -23,11 +23,18 @@ class TripSeeder extends Seeder
             [
                 'trip_num'=>122,
                 'bus_id'=>1,
-                'start_station' => json_encode(['1','7','11']),
-                'end_station' => json_encode(['7','11','16']),
+                'start_station' => ['1','7','11'],
+                'end_station' => ['7','11','16'],
             ]
         ];
-
-        Trip::insert($trips);
+        foreach ($trips as $trip){
+            $trip = Trip::create($trip);
+            $start_station = $trip->start_station;
+            $end_station = $trip->end_station;
+            $available_stations = array_values(array_unique(array_merge($start_station,$end_station)));
+            $trip->seats()->update([
+                'available_stations'=> $available_stations
+            ]);
+        }
     }
 }

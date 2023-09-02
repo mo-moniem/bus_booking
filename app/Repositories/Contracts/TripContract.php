@@ -15,15 +15,15 @@ interface TripContract
 
 
     /**
-     * @param Request $request
+     * @param array $request
      * @return mixed
      */
-    public function getAvailableTripSeat(Request $request);
+    public function getAvailableTripSeat(array $request);
 
     /**
      * @param array $attributes
      * @param Trip $trip
      * @return mixed
      */
-    public function tripSeatBooking(Array $attributes, Trip $trip);
+    public function tripSeatBooking(array $attributes, Trip $trip);
 }

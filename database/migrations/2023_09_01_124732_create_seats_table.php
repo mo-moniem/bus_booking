@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('seat_num',11);
             $table->foreignId('bus_id')->constrained('buses')->cascadeOnDelete();
+            $table->json('available_stations')->nullable();
             $table->timestamps();
         });
     }
